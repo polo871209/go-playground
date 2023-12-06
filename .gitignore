@@ -1,3 +1,4 @@
 go-playground
 .DS_Store
 .env
+.vscode
