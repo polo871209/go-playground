@@ -1,4 +1,4 @@
-module github.com/polo871209/go-playground
+module github.com/polo871209/chi-playground
 
 go 1.21.4
 
