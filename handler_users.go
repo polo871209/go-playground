@@ -10,7 +10,7 @@ import (
 	"github.com/polo871209/chi-playground/internal/database"
 )
 
-func (apiCfg *apiConfig) handlerCreteUser(w http.ResponseWriter, r *http.Request) {
+func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
 	}
@@ -51,8 +51,12 @@ func (apiCfg *apiConfig) handlerCreteUser(w http.ResponseWriter, r *http.Request
 
 	select {
 	case user := <-userChan:
-		respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
+		respondWithJSON(w, http.StatusCreated, databaseUserToUser(user))
 	case err := <-errChan:
 		respondWithError(w, http.StatusBadRequest, fmt.Sprintf("Error create user: %v", err))
 	}
+}
+
+func (apiCfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	respondWithJSON(w, http.StatusOK, databaseUserToUser(user))
 }
