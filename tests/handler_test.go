@@ -1,11 +1,12 @@
 package tests
 
 import (
-	"goAuth/internal/server"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/polo871209/go-playground/internal/server"
 )
 
 func TestHandler(t *testing.T) {
