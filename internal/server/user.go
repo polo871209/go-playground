@@ -4,17 +4,18 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/polo871209/go-playground/internal/database"
 )
 
-func (s *Server) userRouter() *chi.Mux {
-	userRouter := chi.NewRouter()
-	userRouter.Post("/", s.createUser) // Use the server's createUser method
-	return userRouter
-}
-
+// createUser godoc
+// @Summary create user by name
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Success 201 {object} database.User
+// @Failure 400 {object} errorResponse
+// @Router /api/users [post]
 func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
@@ -39,6 +40,6 @@ func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	s.writeJSON(w, http.StatusCreated, user)
 }

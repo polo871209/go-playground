@@ -1,0 +1,209 @@
+definitions:
+  database.User:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  goth.User:
+    properties:
+      accessToken:
+        type: string
+      accessTokenSecret:
+        type: string
+      avatarURL:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      expiresAt:
+        type: string
+      firstName:
+        type: string
+      idtoken:
+        type: string
+      lastName:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      nickName:
+        type: string
+      provider:
+        type: string
+      rawData:
+        additionalProperties: true
+        type: object
+      refreshToken:
+        type: string
+      userID:
+        type: string
+    type: object
+  server.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  server.gothUser:
+    properties:
+      accessToken:
+        type: string
+      accessTokenSecret:
+        type: string
+      avatarURL:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      expiresAt:
+        type: string
+      firstName:
+        type: string
+      idtoken:
+        type: string
+      lastName:
+        type: string
+      location:
+        type: string
+      name:
+        type: string
+      nickName:
+        type: string
+      provider:
+        type: string
+      rawData:
+        additionalProperties: true
+        type: object
+      refreshToken:
+        type: string
+      userID:
+        type: string
+    type: object
+  server.helloWorldResponse:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.helloWorldResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: hello wrold
+      tags:
+      - default
+  /api/auth/{provider}:
+    get:
+      consumes:
+      - application/json
+      description: Initiates authentication with a specified third-party provider
+        and returns user information upon success.
+      parameters:
+      - description: The name of the third-party provider
+        enum:
+        - google
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.gothUser'
+      summary: Login with a third-party provider
+      tags:
+      - auth
+  /api/auth/{provider}/callback:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint is the callback URL for Google authentication.
+      parameters:
+      - description: The name of the third-party provider
+        enum:
+        - google
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/goth.User'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: Processes the authentication callback
+      tags:
+      - auth
+  /api/auth/{provider}/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logs out the user from the current session by clearing authentication
+        cookies or tokens, then redirects to the home page.
+      parameters:
+      - description: The name of the third-party provider
+        enum:
+        - google
+        in: path
+        name: provider
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: User is redirected to the home page.
+          schema:
+            type: string
+      summary: Logs out the user
+      tags:
+      - auth
+  /api/users:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/database.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/server.errorResponse'
+      summary: create user by name
+      tags:
+      - users
+swagger: "2.0"

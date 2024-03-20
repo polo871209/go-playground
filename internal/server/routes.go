@@ -1,12 +1,15 @@
 package server
 
 import (
-	"log"
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	_ "github.com/polo871209/go-playground/internal/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
@@ -22,17 +25,24 @@ func (s *Server) RegisterRoutes() http.Handler {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	// r.Get("/api/healthz", s.healthHandler)
+	apiRoute := chi.NewRouter()
+	r.Mount("/api", apiRoute)
 
-	apiV1Router := chi.NewRouter()
-	r.Mount("/api/v1", apiV1Router)
-	apiV1Router.Mount("/users", s.userRouter())
-	apiV1Router.Get("/", s.HelloWorldHandler)
+	apiRoute.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL(fmt.Sprintf("%s:%s/api/swagger/doc.json", os.Getenv("HOST"), os.Getenv("PORT"))), //The url pointing to API definition
+	))
+	apiRoute.Get("/", s.HelloWorldHandler)
+	// user routes
+	apiRoute.Route("/users", func(r chi.Router) {
+		r.Post("/", s.createUser)
+	})
 
 	// Auth routes
-	apiV1Router.Get("/auth/{provider}/callback", s.getAuthCallbackHandler)
-	apiV1Router.Get("/logout/{provider}", s.LogoutHandler)
-	apiV1Router.Get("/auth/{provider}", s.authHandler)
+	apiRoute.Route("/auth", func(r chi.Router) {
+		r.Get("/{provider}/callback", s.getAuthCallbackHandler)
+		r.Get("/{provider}", s.authHandler)
+		r.Get("/logout/{provider}", s.LogoutHandler)
+	})
 
 	return r
 }
@@ -41,14 +51,17 @@ type helloWorldResponse struct {
 	Message string `json:"message"`
 }
 
+// HelloWorldHandler godoc
+// @Summary hello wrold
+// @Tags default
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} helloWorldResponse
+// @Failure 400 {object} errorResponse
+// @Router /api [get]
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	err := s.writeJSON(w, http.StatusOK, helloWorldResponse{"Hello World"})
 	if err != nil {
-		log.Fatalf("error handling JSON marshal. Err: %v", err)
+		s.errorJSON(w, err)
 	}
 }
-
-// func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-// 	jsonResp, _ := json.Marshal(s.db.Health())
-// 	_, _ = w.Write(jsonResp)
-// }
