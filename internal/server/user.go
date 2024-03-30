@@ -9,13 +9,13 @@ import (
 )
 
 // createUser godoc
-// @Summary create user by name
-// @Tags users
-// @Accept  json
-// @Produce  json
-// @Success 201 {object} database.User
-// @Failure 400 {object} errorResponse
-// @Router /api/users [post]
+//	@Summary	create user by name
+//	@Tags		users
+//	@Accept		json
+//	@Produce	json
+//	@Success	201	{object}	database.User
+//	@Failure	400	{object}	errorResponse
+//	@Router		/users [post]
 func (s *Server) createUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`

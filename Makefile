@@ -5,12 +5,16 @@ all: build
 
 build:
 	@echo "Building..."
-	
 	@go build -o main cmd/api/main.go
 
 # Run the application
 run:
 	@go run cmd/api/main.go
+
+# Updage swagger docs
+# go install github.com/swaggo/swag/cmd/swag@latest
+swag:
+	@swag fmt&&swag init -o internal/docs --dir internal/server --parseDependency --parseInternal -g routes.go
 
 # Test the application
 test:

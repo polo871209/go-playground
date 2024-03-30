@@ -1,9 +1,9 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -12,12 +12,24 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+//	@title			Go Playground API
+//	@version		0.0.1
+//	@description	This is a sample server for a Go.
+
+//	@host		localhost:3000
+//	@BasePath	/api
+
+// @securitydefinitions.oauth2.implicit	OAuth2ImplicitGoogle
+// @authorizationUrl						/api/auth/google
 func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
+	allowedOriginsEnv := os.Getenv("ALLOWED_ORIGINS")
+	allowedOrigins := strings.Split(allowedOriginsEnv, ",")
+
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -29,9 +41,9 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Mount("/api", apiRoute)
 
 	apiRoute.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("%s:%s/api/swagger/doc.json", os.Getenv("HOST"), os.Getenv("PORT"))), //The url pointing to API definition
+		httpSwagger.URL("/api/swagger/doc.json"),
 	))
-	apiRoute.Get("/", s.HelloWorldHandler)
+	apiRoute.With(s.AuthMiddleware).Get("/", s.HelloWorldHandler)
 	// user routes
 	apiRoute.Route("/users", func(r chi.Router) {
 		r.Post("/", s.createUser)
@@ -52,13 +64,15 @@ type helloWorldResponse struct {
 }
 
 // HelloWorldHandler godoc
-// @Summary hello wrold
-// @Tags default
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} helloWorldResponse
-// @Failure 400 {object} errorResponse
-// @Router /api [get]
+//
+//	@Summary	hello wrold
+//	@Tags		default
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	helloWorldResponse
+//	@Failure	400	{object}	errorResponse
+//	@Router		/ [get]
+//	@Security	OAuth2ImplicitGoogle
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	err := s.writeJSON(w, http.StatusOK, helloWorldResponse{"Hello World"})
 	if err != nil {

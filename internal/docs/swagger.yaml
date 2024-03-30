@@ -1,7 +1,10 @@
+basePath: /api
 definitions:
   database.User:
     properties:
       createdAt:
+        type: string
+      email:
         type: string
       id:
         type: string
@@ -10,7 +13,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-  goth.User:
+  server.User:
     properties:
       accessToken:
         type: string
@@ -18,19 +21,11 @@ definitions:
         type: string
       avatarURL:
         type: string
-      description:
-        type: string
       email:
         type: string
       expiresAt:
         type: string
-      firstName:
-        type: string
       idtoken:
-        type: string
-      lastName:
-        type: string
-      location:
         type: string
       name:
         type: string
@@ -38,12 +33,7 @@ definitions:
         type: string
       provider:
         type: string
-      rawData:
-        additionalProperties: true
-        type: object
       refreshToken:
-        type: string
-      userID:
         type: string
     type: object
   server.errorResponse:
@@ -51,51 +41,19 @@ definitions:
       error:
         type: string
     type: object
-  server.gothUser:
-    properties:
-      accessToken:
-        type: string
-      accessTokenSecret:
-        type: string
-      avatarURL:
-        type: string
-      description:
-        type: string
-      email:
-        type: string
-      expiresAt:
-        type: string
-      firstName:
-        type: string
-      idtoken:
-        type: string
-      lastName:
-        type: string
-      location:
-        type: string
-      name:
-        type: string
-      nickName:
-        type: string
-      provider:
-        type: string
-      rawData:
-        additionalProperties: true
-        type: object
-      refreshToken:
-        type: string
-      userID:
-        type: string
-    type: object
   server.helloWorldResponse:
     properties:
       message:
         type: string
     type: object
+host: localhost:3000
 info:
   contact: {}
+  description: This is a sample server for a Go.
+  title: Go Playground API
+  version: 0.0.1
 paths:
-  /api:
+  /:
     get:
       consumes:
       - application/json
@@ -110,10 +68,12 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/server.errorResponse'
+      security:
+      - OAuth2ImplicitGoogle: []
       summary: hello wrold
       tags:
       - default
-  /api/auth/{provider}:
+  /auth/{provider}:
     get:
       consumes:
       - application/json
@@ -133,11 +93,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.gothUser'
+            $ref: '#/definitions/server.User'
       summary: Login with a third-party provider
       tags:
       - auth
-  /api/auth/{provider}/callback:
+  /auth/{provider}/callback:
     get:
       consumes:
       - application/json
@@ -156,7 +116,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/goth.User'
+            $ref: '#/definitions/server.User'
         "403":
           description: Forbidden
           schema:
@@ -164,7 +124,7 @@ paths:
       summary: Processes the authentication callback
       tags:
       - auth
-  /api/auth/{provider}/logout:
+  /auth/{provider}/logout:
     get:
       consumes:
       - application/json
@@ -188,7 +148,7 @@ paths:
       summary: Logs out the user
       tags:
       - auth
-  /api/users:
+  /users:
     post:
       consumes:
       - application/json
@@ -206,4 +166,9 @@ paths:
       summary: create user by name
       tags:
       - users
+securityDefinitions:
+  OAuth2ImplicitGoogle:
+    authorizationUrl: /api/auth/google
+    flow: implicit
+    type: oauth2
 swagger: "2.0"

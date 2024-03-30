@@ -15,8 +15,13 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api": {
+        "/": {
             "get": {
+                "security": [
+                    {
+                        "OAuth2ImplicitGoogle": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -43,7 +48,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/{provider}": {
+        "/auth/{provider}": {
             "get": {
                 "description": "Initiates authentication with a specified third-party provider and returns user information upon success.",
                 "consumes": [
@@ -72,13 +77,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.gothUser"
+                            "$ref": "#/definitions/server.User"
                         }
                     }
                 }
             }
         },
-        "/api/auth/{provider}/callback": {
+        "/auth/{provider}/callback": {
             "get": {
                 "description": "This endpoint is the callback URL for Google authentication.",
                 "consumes": [
@@ -107,7 +112,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/goth.User"
+                            "$ref": "#/definitions/server.User"
                         }
                     },
                     "403": {
@@ -119,7 +124,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/auth/{provider}/logout": {
+        "/auth/{provider}/logout": {
             "get": {
                 "description": "Logs out the user from the current session by clearing authentication cookies or tokens, then redirects to the home page.",
                 "consumes": [
@@ -154,7 +159,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users": {
+        "/users": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -190,6 +195,9 @@ const docTemplate = `{
                 "createdAt": {
                     "type": "string"
                 },
+                "email": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
@@ -201,7 +209,7 @@ const docTemplate = `{
                 }
             }
         },
-        "goth.User": {
+        "server.User": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -213,25 +221,13 @@ const docTemplate = `{
                 "avatarURL": {
                     "type": "string"
                 },
-                "description": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
                 "expiresAt": {
                     "type": "string"
                 },
-                "firstName": {
-                    "type": "string"
-                },
                 "idtoken": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "location": {
                     "type": "string"
                 },
                 "name": {
@@ -243,14 +239,7 @@ const docTemplate = `{
                 "provider": {
                     "type": "string"
                 },
-                "rawData": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
                 "refreshToken": {
-                    "type": "string"
-                },
-                "userID": {
                     "type": "string"
                 }
             }
@@ -263,60 +252,6 @@ const docTemplate = `{
                 }
             }
         },
-        "server.gothUser": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
-                },
-                "accessTokenSecret": {
-                    "type": "string"
-                },
-                "avatarURL": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "expiresAt": {
-                    "type": "string"
-                },
-                "firstName": {
-                    "type": "string"
-                },
-                "idtoken": {
-                    "type": "string"
-                },
-                "lastName": {
-                    "type": "string"
-                },
-                "location": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "nickName": {
-                    "type": "string"
-                },
-                "provider": {
-                    "type": "string"
-                },
-                "rawData": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "refreshToken": {
-                    "type": "string"
-                },
-                "userID": {
-                    "type": "string"
-                }
-            }
-        },
         "server.helloWorldResponse": {
             "type": "object",
             "properties": {
@@ -325,17 +260,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "OAuth2ImplicitGoogle": {
+            "type": "oauth2",
+            "flow": "implicit",
+            "authorizationUrl": "/api/auth/google"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "0.0.1",
+	Host:             "localhost:3000",
+	BasePath:         "/api",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Go Playground API",
+	Description:      "This is a sample server for a Go.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

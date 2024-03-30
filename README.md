@@ -6,14 +6,6 @@ One Paragraph of project description goes here
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-## swaggo/swag
-
-generate swagger docs
-
-```bash
-swag init -o internal/docs --dir internal/server --parseDependency --parseInternal -g routes.go
-```
-
 ## MakeFile
 
 run all make commands with clean tests
@@ -22,34 +14,16 @@ run all make commands with clean tests
 make all build
 ```
 
-build the application
-
-```bash
-make build
-```
-
 run the application
 
 ```bash
 make run
 ```
 
-Create DB container
+update swagger ui
 
 ```bash
-make docker-run
-```
-
-Shutdown DB container
-
-```bash
-make docker-down
-```
-
-live reload the application
-
-```bash
-make watch
+make swag
 ```
 
 run the test suite
@@ -62,4 +36,10 @@ clean up binary from the last build
 
 ```bash
 make clean
+```
+
+live reload the application
+
+```bash
+make watch
 ```

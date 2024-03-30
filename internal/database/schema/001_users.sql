@@ -3,10 +3,11 @@
 CREATE TABLE users
 (
   id         UUID PRIMARY KEY,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  name TEXT NOT NULL
-);
+  created_at TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP NOT NULL DEFAULT now(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL
+); 
 
 -- +goose Down
 
